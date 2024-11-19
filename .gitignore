@@ -1,0 +1,30 @@
+# Ignore build artifacts
+/build/
+/components/*/build/
+sdkconfig.old
+sdkconfig.defaults
+sdkconfig.defaults.esp32*
+*.elf
+*.bin
+*.map
+.devcontainer/
+dependencies.lock
+managed_components/
+Kconfig.projbuild
+# Ignore IDE-specific files
+.vscode/
+*.log
+
+# Ignore CMake build files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# Ignore other generated files
+*.pyc
+__pycache__/
+*.DS_Store
+*.bak
+*.swp
+*.o
+*.d
