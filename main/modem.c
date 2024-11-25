@@ -142,7 +142,7 @@ void send_sms(const char *phone_number, const char *message) {
 
     uart_write_bytes(MODEM_UART_NUM, message, strlen(message));
     uart_write_bytes(MODEM_UART_NUM, "\x1A", 1);
-    vTaskDelay(pdMS_TO_TICKS(1000));
+
 
     uint8_t data[BUF_SIZE];
     int len = uart_read_bytes(MODEM_UART_NUM, data, BUF_SIZE - 1, 1000 / portTICK_PERIOD_MS);
@@ -161,6 +161,6 @@ void sms_task(void *arg) {
     while (1) {
         ESP_LOGI(TAG, "Checking for received SMS");
         check_for_received_sms();
-        vTaskDelay(pdMS_TO_TICKS(60000));
+        vTaskDelay(pdMS_TO_TICKS(60000)); // Wait for 1 minute to check if received SMS message
     }
 }

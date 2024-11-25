@@ -49,10 +49,10 @@ const char* get_longitude() {
     return longitude;
 }
 
-static void log_gps_data(const char *time, const char *latitude, const char *lat_dir, const char *longitude, const char *long_dir, const char *speed, const char *course, const char *date) {
+static void log_gps_data(const char *time, const char *latitude, const char *longitude, const char *speed, const char *course, const char *date) {
     ESP_LOGI(TAG, "Time (UTC): %c%c:%c%c:%c%c", time[0], time[1], time[2], time[3], time[4], time[5]);
-    ESP_LOGI(TAG, "Latitude: %s %s", latitude, lat_dir);
-    ESP_LOGI(TAG, "Longitude: %s %s", longitude, long_dir);
+    ESP_LOGI(TAG, "Latitude: %s", latitude);
+    ESP_LOGI(TAG, "Longitude: %s", longitude);
     ESP_LOGI(TAG, "Speed (km/h): %s", speed);
     ESP_LOGI(TAG, "Date: %c%c/%c%c/20%c%c", date[0], date[1], date[2], date[3], date[4], date[5]);
 }
@@ -99,38 +99,41 @@ void get_last_positions_from_queue(int num_positions) {
 
 // Convert coordinates in degrees and minutes to decimal degrees
 static float convert_to_decimal_degrees(const char *coord, char direction) {
-    // Verify if the input is valid
+    // Verifica se a entrada é válida
     if (!coord || strlen(coord) < 4) {
         fprintf(stderr, "Error: Invalid coordinate.\n");
         return 0.0;
     }
 
-    float degrees = 0.0;
-    float minutes = 0.0;
+    // Determina o tamanho da string para graus e minutos
+    size_t coord_length = strlen(coord);
 
-    // Define size for degrees and minutes
-    char degrees_str[4] = {0};  // Add 3 digits + null terminator
-    char minutes_str[10] = {0};
+    // Latitude: 2 dígitos para graus; Longitude: 3 dígitos para graus
+    size_t degree_length = (coord_length == 9 || coord_length == 10) ? 2 : 3;
 
-    // Separate degrees and minutes
-    if (strlen(coord) > 4) {
-        size_t degree_length = (strlen(coord) > 5) ? 3 : 2;  // Longitudes have at 3 digits
-        strncpy(degrees_str, coord, degree_length);
-        strncpy(minutes_str, coord + degree_length, strlen(coord) - degree_length);
+    // Inicializa as strings para graus e minutos
+    char degrees_str[4] = {0};  // Máximo 3 dígitos + nulo
+    char minutes_str[10] = {0}; // Restante para minutos
 
-        degrees = atof(degrees_str);
-        minutes = atof(minutes_str);
-    }
+    // Separa graus e minutos
+    strncpy(degrees_str, coord, degree_length);
+    strncpy(minutes_str, coord + degree_length, coord_length - degree_length);
 
+    // Converte strings para valores numéricos
+    float degrees = atof(degrees_str);
+    float minutes = atof(minutes_str);
+
+    // Calcula graus decimais
     float decimal_degrees = degrees + (minutes / 60.0);
 
-    // South and West are negative
+    // Aplica o sinal negativo se necessário
     if (direction == 'S' || direction == 'W') {
         decimal_degrees = -decimal_degrees;
     }
 
     return decimal_degrees;
 }
+
 
 // Analyze NMEA sentence
 // Example NMEA: $GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A
@@ -139,7 +142,7 @@ void parse_nmea(char *data) {
     char *rest = data;
 
     if (strncmp(data, "$GPRMC", 6) == 0) {
-        ESP_LOGI(TAG, "Parsing $GPRMC sentence: %s", data);
+        // ESP_LOGI(TAG, "Parsing $GPRMC sentence: %s", data);
 
         token = strtok_r(rest, ",", &rest); // $GPRMC
         token = strtok_r(rest, ",", &rest); // Time
@@ -147,9 +150,9 @@ void parse_nmea(char *data) {
         token = strtok_r(rest, ",", &rest); // Status
         char *status = token;
 
-        if (status) {
-            ESP_LOGI(TAG, "Status: %s", status);
-        }
+        // if (status) {
+        //     ESP_LOGI(TAG, "Status: %s", status);
+        // }
 
         if (status && strcmp(status, "A") == 0) {
             ESP_LOGI(TAG, "GPS Data: Valid");
@@ -183,10 +186,11 @@ void parse_nmea(char *data) {
                 add_position_to_queue(get_latitude(), get_longitude());
             }
 
-            log_gps_data(time, lat, lat_dir, lon, lon_dir, speed_kmh_str, NULL, date);
+            log_gps_data(time, latitude, longitude, speed_kmh_str, NULL, date);
 
         } else {
             ESP_LOGW(TAG, "GPS Data: Invalid");
+            get_last_positions_from_queue(10); // Obtém as últimas 10 Posições
         }
     }
 }
@@ -199,9 +203,6 @@ void gps_task(void *arg) {
         if (len > 0) {
             data[len] = '\0';
             parse_nmea((char *)data);
-        } else {
-            ESP_LOGI(TAG, "No data received from GPS");
-            get_last_positions_from_queue(5); // Get the last 5 positions from the queue
         }
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
