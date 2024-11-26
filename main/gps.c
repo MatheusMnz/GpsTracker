@@ -50,6 +50,7 @@ const char* get_longitude() {
 }
 
 static void log_gps_data(const char *time, const char *latitude, const char *longitude, const char *speed, const char *course, const char *date) {
+    printf("\n\n");
     ESP_LOGI(TAG, "Time (UTC): %c%c:%c%c:%c%c", time[0], time[1], time[2], time[3], time[4], time[5]);
     ESP_LOGI(TAG, "Latitude: %s", latitude);
     ESP_LOGI(TAG, "Longitude: %s", longitude);
@@ -203,7 +204,6 @@ void gps_task(void *arg) {
         if (len > 0) {
             data[len] = '\0';
             parse_nmea((char *)data);
-        }
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        } 
     }
 }

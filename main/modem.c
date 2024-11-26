@@ -3,9 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-
-// Command to put on sleep mod: AT+CSCLK=1 -> Analisar e verificar essa opção
-
+// Command to put on sleep mode: AT+CSCLK=1 -> Analyze and verify this option
 
 static const char *TAG = "MODEM_MOD";
 int mode = MODE_REQUEST;
@@ -31,6 +29,20 @@ static void clear_sms_buffer() {
     }
 }
 
+static void put_modem_to_sleep() {
+    if (!send_at_command("AT+CSCLK=1", AT_CMD_OK, 1000)) {
+        ESP_LOGE(TAG, "Failed to put modem to sleep");
+    } else {
+        ESP_LOGI(TAG, "Modem is now in sleep mode");
+    }
+}
+
+static void put_modem_to_sleep_if_needed() {
+    if (mode == MODE_REQUEST) {
+        put_modem_to_sleep(); // Coloca o modem em modo de suspensão se não houver operações pendentes
+    }
+}
+
 void init_modem() {
     ESP_LOGI(TAG, "Configuring UART for modem");
     const uart_config_t uart_config = {
@@ -51,11 +63,12 @@ void init_modem() {
 
     ESP_LOGI(TAG, "Modem initialized successfully");
     clear_sms_buffer();
+    put_modem_to_sleep_if_needed(); // Verifica se o modem deve ser colocado em modo de suspensão
 }
 
 // SMS example: +CMGR: "REC UNREAD","+5511998765432","","23/11/14,17:30:45+08"
 //                      Hello, this is a test message!
-// Verificar formato da mensagem
+// Verify message format
 
 static void parse_sms_response(char *data) {
     char *line = strtok(data, "\r\n");
@@ -97,6 +110,7 @@ static void read_sms_from_modem() {
 
 void check_for_received_sms() {
     read_sms_from_modem();
+    put_modem_to_sleep_if_needed(); // Verifica se o modem deve ser colocado em modo de suspensão após ler SMS
 }
 
 static void continuous_location_task(void *arg) {
@@ -122,6 +136,7 @@ void handle_received_sms(const char *sender, const char *message) {
         }
     } else if (strcmp(message, "SET_MODE_REQUEST") == 0) {
         mode = MODE_REQUEST;
+        put_modem_to_sleep_if_needed(); // Verifica se o modem deve ser colocado em modo de suspensão ao mudar para modo de requisição
     } else if (strcmp(message, "SET_MODE_CONTINUOUS") == 0) {
         mode = MODE_CONTINUOUS;
     }
@@ -142,7 +157,6 @@ void send_sms(const char *phone_number, const char *message) {
 
     uart_write_bytes(MODEM_UART_NUM, message, strlen(message));
     uart_write_bytes(MODEM_UART_NUM, "\x1A", 1);
-
 
     uint8_t data[BUF_SIZE];
     int len = uart_read_bytes(MODEM_UART_NUM, data, BUF_SIZE - 1, 1000 / portTICK_PERIOD_MS);
