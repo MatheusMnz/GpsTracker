@@ -23,7 +23,7 @@
 #define AT_CMD_OK "OK"
 #define AT_CMD_SET_TEXT_MODE "AT+CMGF=1\r"
 #define AT_CMD_READ_ALL_SMS "AT+CMGL=\"ALL\"\r"
-#define AT_CMD_DELETE_ALL_SMS "AT+CMGD=1,4\r"
+#define AT_CMD_DELETE_ALL_SMS "AT+CMGDA=6\r"
 #define AT_CMD_SEND_SMS "AT+CMGS=\"%s\"\r"
 #define AT_CMD_SEND_SMS_PROMPT ">"
 
