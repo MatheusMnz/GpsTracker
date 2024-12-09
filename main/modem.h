@@ -14,17 +14,17 @@
 #define BUF_SIZE 1024
 
 // Commands
-#define REQUEST_POSITION_CMD "GET_POSITION"
+#define REQUEST_POSITION_CMD "GET LOCATION"
 #define MODE_REQUEST 0
 #define MODE_CONTINUOUS 1
 
 // AT Commands
-#define AT_CMD "AT\r"
-#define AT_CMD_OK "OK"
-#define AT_CMD_SET_TEXT_MODE "AT+CMGF=1\r"
-#define AT_CMD_READ_ALL_SMS "AT+CMGL=\"ALL\"\r"
-#define AT_CMD_DELETE_ALL_SMS "AT+CMGDA=6\r"
-#define AT_CMD_SEND_SMS "AT+CMGS=\"%s\"\r"
+#define AT_CMD "AT\r\n"
+#define AT_CMD_OK "OK\r\n"
+#define AT_CMD_SET_TEXT_MODE "AT+CMGF=1\r\n"
+#define AT_CMD_READ_ALL_SMS "AT+CMGL=\"ALL\"\r\n"
+#define AT_CMD_DELETE_ALL_SMS "AT+CMGDA=6\r\n"
+#define AT_CMD_SEND_SMS "AT+CMGS=\"%s\"\r\n"
 #define AT_CMD_SEND_SMS_PROMPT ">"
 
 extern int mode;

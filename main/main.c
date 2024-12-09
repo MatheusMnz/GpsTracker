@@ -4,7 +4,7 @@
 #include "modem.h"
 #include "esp_log.h"
 
-#define ENABLE_GPS
+// #define ENABLE_GPS
 #define ENABLE_MODEM
 
 static const char *TAG_GPS = "GPS_MOD";
@@ -27,7 +27,7 @@ void app_main() {
 
 #ifdef ENABLE_MODEM
     init_modem();
-    if (xTaskCreate(sms_task, "sms_task", 4096, NULL, 5, NULL) != pdPASS) {
+    if (xTaskCreate(sms_task, "sms_task", 8192, NULL, 5, NULL) != pdPASS) {
         ESP_LOGE(TAG_MODEM, "Failed to create SMS task");
     }
 #endif
