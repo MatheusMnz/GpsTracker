@@ -50,12 +50,12 @@ const char* get_longitude() {
 }
 
 static void log_gps_data(const char *time, const char *latitude, const char *longitude, const char *speed, const char *course, const char *date) {
-    printf("\n\n");
-    ESP_LOGI(TAG, "Time (UTC): %c%c:%c%c:%c%c", time[0], time[1], time[2], time[3], time[4], time[5]);
-    ESP_LOGI(TAG, "Latitude: %s", latitude);
-    ESP_LOGI(TAG, "Longitude: %s", longitude);
-    ESP_LOGI(TAG, "Speed (km/h): %s", speed);
-    ESP_LOGI(TAG, "Date: %c%c/%c%c/20%c%c", date[0], date[1], date[2], date[3], date[4], date[5]);
+    // printf("\n\n");
+    // ESP_LOGI(TAG, "Time (UTC): %c%c:%c%c:%c%c", time[0], time[1], time[2], time[3], time[4], time[5]);
+    // ESP_LOGI(TAG, "Latitude: %s", latitude);
+    // ESP_LOGI(TAG, "Longitude: %s", longitude);
+    // ESP_LOGI(TAG, "Speed (km/h): %s", speed);
+    // ESP_LOGI(TAG, "Date: %c%c/%c%c/20%c%c", date[0], date[1], date[2], date[3], date[4], date[5]);
 }
 
 void add_position_to_queue(const char *latitude, const char *longitude) {
@@ -66,13 +66,13 @@ void add_position_to_queue(const char *latitude, const char *longitude) {
     if (uxQueueSpacesAvailable(position_queue) == 0) {
         char discarded_position[32];
         if (xQueueReceive(position_queue, discarded_position, 0) == pdPASS) {
-            ESP_LOGW(TAG, "Queue full, discarding oldest position: %s", discarded_position);
+            // ESP_LOGW(TAG, "Queue full, discarding oldest position: %s", discarded_position);
         }
     }
 
     // Add position to queue
     if (xQueueSend(position_queue, position, portMAX_DELAY) != pdPASS) {
-        ESP_LOGE(TAG, "Failed to add position to queue");
+        // ESP_LOGE(TAG, "Failed to add position to queue");
     }
 }
 
@@ -80,21 +80,21 @@ void get_last_positions_from_queue(int num_positions) {
     char position[32];
     int count = 0;
 
-    ESP_LOGI(TAG, "Last %d positions:", num_positions);
+    // ESP_LOGI(TAG, "Last %d positions:", num_positions);
     while (count < num_positions && xQueueReceive(position_queue, position, 0) == pdPASS) {
         char *rest_position = position;
         char *lat = strtok_r(rest_position, ",", &rest_position);
         char *lon = strtok_r(NULL, ",", &rest_position);
         if (lat && lon) {
-            ESP_LOGI(TAG, "Position %d: Latitude: %s, Longitude: %s", count + 1, lat, lon);
+            // ESP_LOGI(TAG, "Position %d: Latitude: %s, Longitude: %s", count + 1, lat, lon);
         } else {
-            ESP_LOGI(TAG, "Position %d: Invalid data", count + 1);
+            // ESP_LOGI(TAG, "Position %d: Invalid data", count + 1);
         }
         count++;
     }
 
     if (count == 0) {
-        ESP_LOGI(TAG, "No positions available in the queue");
+        // ESP_LOGI(TAG, "No positions available in the queue");
     }
 }
 
@@ -156,7 +156,7 @@ void parse_nmea(char *data) {
         // }
 
         if (status && strcmp(status, "A") == 0) {
-            ESP_LOGI(TAG, "GPS Data: Valid");
+            // ESP_LOGI(TAG, "GPS Data: Valid");
 
             char *lat = strtok_r(rest, ",", &rest);
             char *lat_dir = strtok_r(rest, ",", &rest);
@@ -190,7 +190,7 @@ void parse_nmea(char *data) {
             log_gps_data(time, latitude, longitude, speed_kmh_str, NULL, date);
 
         } else {
-            ESP_LOGW(TAG, "GPS Data: Invalid");
+            // ESP_LOGW(TAG, "GPS Data: Invalid");
             get_last_positions_from_queue(10); // Obtém as últimas 10 Posições
         }
     }

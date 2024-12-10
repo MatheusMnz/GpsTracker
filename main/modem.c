@@ -89,7 +89,6 @@ void init_modem()
 {
     modem_semaphore = xSemaphoreCreateMutex();
 
-    uart_flush(MODEM_UART_NUM);
     const uart_config_t uart_config = {
         .baud_rate = MODEM_BAUDRATE,
         .data_bits = UART_DATA_8_BITS,
@@ -169,14 +168,9 @@ void send_sms(const char *phone_number, const char *message)
 
     uart_write_bytes(MODEM_UART_NUM, message, strlen(message));
     ESP_LOGI(TAG, "Message sent: %s", message);
-    uint8_t ctrl_z = 0x1A; // Ctrl+Z to indicate end of message
-    uart_write_bytes(MODEM_UART_NUM, (const char *)&ctrl_z, 1);
-    ESP_LOGI(TAG, "Enviando 0x1A");
-
-    vTaskDelay(pdMS_TO_TICKS(5000)); // Aguardar 5 segundos para resposta
 
     uint8_t data[BUF_SIZE];
-    int len = uart_read_bytes(MODEM_UART_NUM, data, BUF_SIZE - 1, pdMS_TO_TICKS(2000));
+    int len = uart_read_bytes(MODEM_UART_NUM, data, BUF_SIZE - 1, pdMS_TO_TICKS(30000));
 
     if (len > 0)
     {
@@ -200,6 +194,7 @@ void handle_received_sms(const char *sender, const char *message)
     {
         char response[160];
         snprintf(response, sizeof(response), "GPS Location: https://maps.google.com/?q=%s,%s", get_latitude(), get_longitude());
+        strcat(response, "\x1a\r\n");
         send_sms(sender, response);
     }
     else if (strcmp(message, "SET_MODE_REQUEST") == 0)
@@ -218,6 +213,6 @@ void sms_task(void *arg)
     while (1)
     {
         check_for_received_sms();
-        vTaskDelay(pdMS_TO_TICKS(60000)); // Checar SMS a cada 1 minuto
+        vTaskDelay(pdMS_TO_TICKS(600)); // Checar SMS a cada 1 minuto
     }
 }

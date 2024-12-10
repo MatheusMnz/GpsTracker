@@ -4,7 +4,7 @@
 #include "modem.h"
 #include "esp_log.h"
 
-// #define ENABLE_GPS
+#define ENABLE_GPS
 #define ENABLE_MODEM
 
 static const char *TAG_GPS = "GPS_MOD";
