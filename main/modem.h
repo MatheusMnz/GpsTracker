@@ -23,10 +23,10 @@
 #define AT_CMD_OK "OK\r\n"
 #define AT_CMD_SET_TEXT_MODE "AT+CMGF=1\r\n"
 #define AT_CMD_READ_ALL_SMS "AT+CMGL=\"ALL\"\r\n"
-#define AT_CMD_DELETE_ALL_SMS "AT+CMGDA=6\r\n"
-#define AT_CMD_SEND_SMS "AT+CMGS=\"%s\"\r\n"
+#define AT_CMD_DELETE_ALL_SMS "AT+CMGDA=\"DEL ALL\"\r\n"
+#define AT_CMD_SEND_SMS "AT+CMGS=%s\r\n"
 #define AT_CMD_SEND_SMS_PROMPT ">"
-
+#define AT_CMD_SLEEP_MODE "AT+CSCLK=1\r\n"
 extern int mode;
 
 void init_modem();
