@@ -115,7 +115,7 @@ Este projeto é licenciado sob a Licença MIT. Consulte o arquivo [LICENSE](LICE
 
 ## 📞 Contato
 
-Para dúvidas, sugestões ou problemas, abra uma issue no GitHub ou entre em contato pelo e-mail [seu.email@example.com](mailto:matheus.menezes0806@gmail.com).
+Para dúvidas, sugestões ou problemas, abra uma issue no GitHub ou entre em contato pelo e-mail [matheus.menezes0806@gmail.com](mailto:matheus.menezes0806@gmail.com).
 
 ---
 
